@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>user card</title>
+    <style>
+        #id-name {
+            height: 50px;
+            width: 50px;
+            border: #1a1a1a solid 1px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        #id-card {
+            height: 150px;
+            width: 100px;
+            border: #0cd720 solid;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="user-card">
+    <div id="id-name">头像</div>
+    <div id="id-card">
+        姓名：xxx<br>简介：xxxxx
+    </div>
+</div>
+<script>
+    const log = console.log.bind(console)
+    const e = (sel) => document.querySelector(sel)
+
+    var timer1, timer2;
+    var isMouseinA = false;
+    var isMouseinB = false;
+    var user = e("#id-name");
+    var card = e("#id-card");
+
+    const showUsercard = () => {
+        card.style.display = "block"
+    }
+
+    const removeUsercard = () => {
+        card.style.display = "none"
+    }
+
+    const onMouseover = () => {
+        user.addEventListener("mouseover", () => {
+            isMouseinA = true;
+            log("划入A")
+            timer1 = setTimeout(() => {
+                if(isMouseinA) {
+                    showUsercard()
+                }
+            }, 500)
+        })
+        card.addEventListener("mouseover", () => {
+            isMouseinB = true;
+            log("划入B")
+            clearTimeout(timer2)
+        })
+    }
+
+    const onMouseoout = () => {
+        user.addEventListener("mouseout", () => {
+            isMouseinA = false;
+            clearTimeout(timer1)
+            if(!isMouseinB) {
+                timer2 = setTimeout(() => {
+                    removeUsercard()
+                },500)
+            }
+        })
+        card.addEventListener(("mouseout"), () => {
+            isMouseinB = false;
+            setTimeout(() => {
+                if(!isMouseinA) {
+                    removeUsercard()
+                }
+            }, 500)
+        })
+    }
+
+    const __main = () => {
+        onMouseover()
+        onMouseoout()
+    }
+    __main()
+
+</script>
+</body>
+</html>
