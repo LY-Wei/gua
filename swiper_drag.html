@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .swiper-container {
+            width: 1000px;
+            height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+        .swiper {
+            width: 2500px;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* background: red; */
+
+        }
+        .swiper-item {
+            width: 500px;
+            height: 500px;
+            border: 1px solid red;
+            position: relative;
+            /* transition: all 0.5s; */
+        }
+    </style>
+</head>
+<body>
+<div class="swiper-container">
+    <div class="swiper">
+        <div class="swiper-item" ondragstart='return false;'></div>
+        <div class="swiper-item" ondragstart='return false;'></div>
+        <div class="swiper-item" ondragstart='return false;'></div>
+        <div class="swiper-item" ondragstart='return false;'></div>
+    </div>
+</div>
+</body>
+<script>
+    const log = console.log.bind(console)
+    const e = document.querySelector.bind(document)
+    let swiper = e('.swiper')
+    let startX = 0
+    let endX = 0
+    let itemPx = 0
+    let status = false
+    let swiperItems = document.querySelectorAll('.swiper-item')
+    const initSwiperItemTransition = () => {
+        for (let i = 0; i < swiperItems.length; i++) {
+            let v = swiperItems[i];
+            v.style.transition = "0s"
+        }
+    }
+    const setSwiperItemPosition = (w) => {
+        for (let i = 0; i < swiperItems.length; i++) {
+            const v = swiperItems[i];
+            let num = Number(v.style.left.replace('px', ''))
+            v.style.left = (w + num - itemPx) + 'px'
+        }
+        itemPx = w
+    }
+    const initSwipeItemPostion = () => {
+        let w = 500
+        let m = w / 2
+        for (let i = 0; i < swiperItems.length; i++) {
+            let v = swiperItems[i];
+            let num = Number(v.style.left.replace('px', ''))
+            let n = num % w
+            let index = parseInt(num / w)
+            let left = 0
+            if (n >= m || n <= -m) {
+                left = (n / (-n) + index) * w
+            } else {
+                left = index * w
+            }
+            v.style.transition = "0.5s all"
+            v.style.left = left + 'px'
+        }
+    }
+    swiper.addEventListener('mousedown', (v) => {
+        status = true
+        startX = v.pageX
+        initSwiperItemTransition()
+    })
+    swiper.addEventListener('mousemove', (v) => {
+        if (status) {
+            endX = v.pageX
+            let w = startX - endX
+            setSwiperItemPosition(w)
+        }
+    })
+    swiper.addEventListener('mouseup', (v) => {
+        itemPx = 0
+        status = false
+        initSwipeItemPostion()
+    })
+</script>
+</html>

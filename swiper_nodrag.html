@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>轮播图</title>
+    <style type="text/css">
+        body {
+            margin: 30px 0px;
+        }
+        #box {
+            width: 1000px;
+            height: 500px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #leftBox {
+            width: 100px;
+            height: 500px;
+        }
+        #imgBox {
+            width: 800px;
+            height: 500px;
+            overflow: hidden;
+        }
+        #rightBox {
+            width: 100px;
+            height: 500px;
+        }
+        #box ul {
+            list-style: none;
+        }
+        .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .flex-left {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        .img {
+            width: 800px;
+            height: 450px;
+            display: inline-block;
+            color: aliceblue;
+        }
+        .circle {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            border: 1px #000 solid;
+            margin-right: 10px;
+        }
+        .active {
+            background-color: lightcoral;
+        }
+        #images {
+            padding: 0;
+            margin: 0;
+            transform: translateX(0px);
+            transition: transform 0.35s;
+        }
+        #dots {
+            padding: 0;
+            margin: 0;
+        }
+
+    </style>
+</head>
+<body>
+<div id="box">
+    <div id="leftBox" class="center">
+        <button id="leftButton">上一张</button>
+    </div>
+    <div id="imgBox">
+        <ul id="images" class="flex-left">
+            <!--<li><img src=`${imgUrl[i]}`/></li>-->
+        </ul>
+        <ul id="circle" class="center">
+            <li>
+                <!--<i class="circle"></i>-->
+                <i class="circle active" data-index="1"></i>
+            </li>
+        </ul>
+    </div>
+    <div id="rightBox" class="center">
+        <button id="rightButton">下一张</button>
+    </div>
+</div>
+<script type="application/javascript">
+    const log = console.log.bind(console);
+
+    const e = function (selector) {
+        let element = document.querySelector(selector);
+        if (element === null) {
+            let s = `selector ${selector} not found`;
+            // alert(s)
+            //
+            return null;
+        } else {
+            return element;
+        }
+    };
+
+    // es 返回一个数组，包含所有被选中的元素
+    const es = function (selector) {
+        let elements = document.querySelectorAll(selector);
+        if (elements.length === 0) {
+            let s = `selector ${selector} not found`;
+            alert(s);
+            //
+            return [];
+        } else {
+            return elements;
+        }
+    };
+    // bind 给元素绑定事件
+    const bind = function (element, eventName, callback) {
+        element.addEventListener(eventName, callback);
+    };
+
+    // bindAll 给所有的元素绑定事件
+    const bindAll = function (elements, eventName, callback) {
+        for (let i = 0; i < elements.length; i++) {
+            let tag = elements[i];
+            tag.addEventListener(eventName, callback);
+        }
+    };
+</script>
+<script>
+    const imgInfo = () => {
+        // 方便修改根目录
+        let directory = "./image";
+        let images = [
+            `${directory}/1.jpg`,
+            `${directory}/2.jpg`,
+            `${directory}/3.jpg`,
+            `${directory}/4.jpg`,
+            `${directory}/5.jpg`
+        ];
+        let o = {
+            x: 0,
+            imgUrl: images,
+            imgWidth: 800,
+            imagesLength: images.length,
+            imgIndex: 1
+        };
+        return o;
+    };
+
+    const template = (random1, random2, random3, i) => {
+        // <li><img src=`${imgUrl[i]}`/></li>
+        let s = `
+                <li><span style="background-color: rgb(${random1}, ${random2}, ${random3})" class="img">${
+            i + 1
+        }</span></li>
+            `;
+        return s;
+    };
+
+    const circleTemplate = (i) => {
+        let s = `<li> <i class="circle" data-index="${i}"></i> </li>`;
+        return s;
+    };
+
+    const addImage = () => {
+        let images = e("#images");
+        let circle = e("#circle");
+        let img = imgInfo();
+        for (let i = 0; i < img.imagesLength; i++) {
+            let random1 = Math.floor(Math.random() * 100);
+            let random2 = Math.floor(Math.random() * 100);
+            let random3 = Math.floor(Math.random() * 100);
+            // 添加轮播图片
+            let t = template(random1, random2, random3, i);
+            images.innerHTML += t;
+            // 添加图片下面的小圆点
+            let c = circleTemplate(i + 1);
+            if (i >= 1) {
+                circle.innerHTML += c;
+            }
+        }
+    };
+
+    // 遍历删除 active
+    const removeActiveEvent = (es) => {
+        for (let i = 0; i < es.length; i++) {
+            let element = es[i];
+            let active = element.classList.contains("active");
+            if (active) {
+                element.classList.remove("active");
+            }
+        }
+    };
+    // 添加 active
+    const addActiveEvent = (circle, img) => {
+        removeActiveEvent(circle);
+        circle[img.imgIndex - 1].classList.add("active");
+    };
+
+    // 小圆点切换图片
+    const bindCircleEvent = (img, images, circle) => {
+        bindAll(circle, "mouseover", (e) => {
+            let self = e.target;
+            let index = self.dataset.index;
+            img.imgIndex = index;
+            removeActiveEvent(circle);
+            self.classList.add("active");
+            img.x = img.imgIndex * img.imgWidth - img.imgWidth;
+            images.style.transform = `translateX(-${img.x}px)`;
+        });
+    };
+
+    // 上一张 下一张按钮事件 代码一致性强可以封装(未完成)
+    const bindLeftEvent = (img, left, images, widthMax, circle) => {
+        bind(left, "click", () => {
+            if (img.x <= 0) {
+                // 算出最后一张图片的起始坐标
+                img.x = widthMax - img.imgWidth;
+                img.imgIndex = img.imagesLength;
+                images.style.transform = `translateX(-${img.x}px)`;
+            } else {
+                img.x -= 800;
+                img.imgIndex -= 1;
+                images.style.transform = `translateX(-${img.x}px)`;
+            }
+            addActiveEvent(circle, img);
+        });
+    };
+
+    const bindRightEvent = (img, right, images, widthMax, circle) => {
+        bind(right, "click", () => {
+            // 判断 是否是最后一张图片
+            // x是左下角的坐标点,
+            // widthMax为最后一张图片的右下角,
+            // 所以需要减去一张图片的宽度来获得最后一张图片的起点位置.
+            let startX = widthMax - img.imgWidth;
+            if (img.x === startX) {
+                // 第一张图片的坐标
+                img.x = 0;
+                img.imgIndex = 1;
+                images.style.transform = `translateX(-${img.x}px)`;
+            } else {
+                img.x += 800;
+                img.imgIndex += 1;
+                images.style.transform = `translateX(-${img.x}px)`;
+            }
+            addActiveEvent(circle, img);
+        });
+    };
+
+    // 切换图片事件
+    const bindButtonEvent = () => {
+        let right = e("#rightButton");
+        let left = e("#leftButton");
+        let images = e("#images");
+        let img = imgInfo();
+        let circle = es(".circle");
+        let widthMax = img.imgWidth * img.imgUrl.length;
+        // 绑定切换下一张图片
+        bindRightEvent(img, right, images, widthMax, circle);
+        // 绑定切换上一张图片
+        bindLeftEvent(img, left, images, widthMax, circle);
+        // 小圆点切换图片
+        bindCircleEvent(img, images, circle);
+    };
+
+    const __main = () => {
+        // 初始化添加图片
+        addImage();
+        // 绑定按钮切换图片事件
+        bindButtonEvent();
+    };
+    __main();
+</script>
+<script src="../ku.js"></script>
+</body>
+</html>
